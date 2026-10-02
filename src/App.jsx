@@ -4,6 +4,7 @@ import { loadRequests, nextRequestId, saveRequests } from './requestStorage.js'
 import RequestList from './RequestList.jsx'
 import RequestDetails from './RequestDetails.jsx'
 import NewRequestForm from './NewRequestForm.jsx'
+import CloudSampleRequests from './CloudSampleRequests.jsx'
 
 export default function App() {
   const [board, setBoard] = useState(loadRequests)
@@ -84,6 +85,7 @@ export default function App() {
         </div>
         <RequestDetails request={selectedRequest} onStatusChange={changeStatus} selectionHidden={selectionHidden} />
       </section>
+      <CloudSampleRequests />
       <footer className="page-footer">Maintenance Board <span>Small fixes. Better spaces.</span></footer>
     </main>
   )

@@ -25,6 +25,19 @@ npm run test     # Run focused storage and React flow tests
 npm run preview  # Preview the built app locally
 ```
 
+## Cloud sample setup
+
+The separate read-only **Cloud sample requests** section fetches fictional Supabase records. It does not write to the database or merge records into the local board or count.
+
+1. Copy `.env.example` to `.env.local` if that file does not already exist. Preserve any existing values.
+2. Set `VITE_SUPABASE_URL` to your project URL and `VITE_SUPABASE_PUBLISHABLE_KEY` to its `sb_publishable_…` key. Get these from Supabase's Connect dialog. Never use a secret or service-role key. Vite exposes these two values to the browser.
+3. The existing `public.practice_requests` table must allow reads with the publishable key and contain `id`, `location`, `title`, `priority`, and `status`. No description column is queried. This app does not create the table or change permissions/schema.
+4. Restart `npm run dev` after editing configuration. For deployment, set the same environment variables before building.
+
+`.env.local` is ignored by Git through `*.local`. Missing or invalid configuration shows a helpful error without affecting the local board. Loading, empty results, errors, and Retry are handled within the cloud section.
+
+`src/supabase.js` creates the client with auth-session persistence disabled and queries exactly those five columns, ordered by `id` ascending. `src/CloudSampleRequests.jsx` owns the fetch state, displays the records, and retries reads. It cancels requests on cleanup to ignore stale results. See [Supabase's publishable-key documentation](https://supabase.com/docs/guides/getting-started/api-keys).
+
 ## How state works
 
 `src/App.jsx` owns the requests and storage error together in state, plus the selected request ID and active filter. It derives the selected request, filtered list, and unresolved count from the same array. The count includes every Open and In progress request, regardless of the filter.
@@ -49,11 +62,14 @@ Saving happens synchronously on each valid form submission or status change, bef
 
 - Starts with three fictional requests; you can add demo requests, but cannot delete them. No real property data is included.
 - Requests persist in this browser for this site origin. Clearing browser data removes them; private browsing may remove them when the session ends. Different ports or domains have separate storage.
-- No login, database, account/device sync, AI calls, paid services, or backend.
+- No login, account/device sync, AI calls, or database writes. The cloud sample section requires an existing Supabase project; local board data stays in browser storage.
 - No live synchronization between open tabs. Avoid editing in multiple tabs at once: a later save can replace another tab's changes.
 - Form drafts, selected request, and filter are not persisted. On reload the filter is All and the first saved request is selected, if any.
 
 ## Manual checks
+
+- Check that Supabase records load in ID order, with no description or edit controls. Confirm the local count and saved requests remain unchanged.
+- Check an empty cloud result, offline/error behavior followed by Retry, and missing configuration after restarting the server. Verify the local board still works in each case.
 
 - Submit blank and whitespace-only required fields: errors appear, focus moves to the first invalid field, the draft stays intact, and no request is added.
 - Submit padded text with an empty description: stored text is trimmed, priority defaults to Medium, and the new request starts Open.

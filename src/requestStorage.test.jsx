@@ -6,6 +6,9 @@ import App from './App.jsx'
 import { initialRequests } from './requests.js'
 import { isValidRequests, loadRequests, nextRequestId, saveRequests, STORAGE_KEY } from './requestStorage.js'
 
+// Existing local-board tests stay independent of network/configuration.
+vi.mock('./supabase.js', () => ({ fetchCloudSampleRequests: vi.fn().mockResolvedValue([]) }))
+
 beforeEach(() => window.localStorage.clear())
 afterEach(() => {
   cleanup()
