@@ -2,6 +2,11 @@
 
 A small React + Vite project in plain JavaScript for exploring maintenance request state.
 
+## Live demo
+https://maintenance-board-three.vercel.app/
+
+Demo uses fictional requests. Status changes reset on refresh.
+
 ## Run locally
 
 Use Node.js 22.12+ (Node 22 LTS) and npm. From this folder:
