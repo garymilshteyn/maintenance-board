@@ -27,7 +27,7 @@ export default function RequestDetails({ request, onStatusChange, selectionHidde
             <select id="request-status" value={request.status} onChange={(event) => onStatusChange(request.id, event.target.value)}>
               {statuses.map((status) => <option key={status} value={status}>{status}</option>)}
             </select>
-            <p>Changes appear immediately. No save button needed.</p>
+            <p>Status changes save automatically in this browser. If saving fails, the previous status stays selected.</p>
             {selectionHidden && <p className="filter-note" role="status">This request is outside the current filter. Its details stay open so you can keep editing.</p>}
           </div>
         </>
