@@ -1,12 +1,15 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { initialRequests, statuses } from './requests.js'
 import RequestList from './RequestList.jsx'
 import RequestDetails from './RequestDetails.jsx'
+import NewRequestForm from './NewRequestForm.jsx'
 
 export default function App() {
   const [requests, setRequests] = useState(initialRequests)
   const [selectedId, setSelectedId] = useState(initialRequests[0].id)
   const [filter, setFilter] = useState('All')
+  // IDs increase for this demo session and are assigned only once per request.
+  const nextRequestId = useRef(Math.max(...initialRequests.map((request) => request.id)) + 1)
 
   // Derive everything from the same requests array; never store a second copy.
   const selectedRequest = requests.find((request) => request.id === selectedId)
@@ -20,6 +23,14 @@ export default function App() {
     setRequests((currentRequests) => currentRequests.map((request) => (
       request.id === id ? { ...request, status } : request
     )))
+  }
+
+  function addRequest(values) {
+    const newRequest = { ...values, id: nextRequestId.current, status: 'Open' }
+    nextRequestId.current += 1
+    setRequests((currentRequests) => [...currentRequests, newRequest])
+    setFilter('All')
+    setSelectedId(newRequest.id)
   }
 
   return (
@@ -37,6 +48,8 @@ export default function App() {
       </header>
 
       <p className="demo-note"><strong>Temporary demo.</strong> These requests are fictional. Changes live in React state; refreshing resets the demo.</p>
+
+      <NewRequestForm onAddRequest={addRequest} />
 
       <section className="workspace" aria-label="Maintenance requests">
         <div className="list-panel">
