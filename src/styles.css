@@ -82,6 +82,14 @@ select { width: 100%; color: #263c34; background: #fff; border: 1px solid #bdcbb
 .status-control .filter-note { color: #3b654c; border-top: 1px solid #d9e2d4; padding-top: 12px; }
 .empty-state { padding: 24px 8px; font-size: 14px; color: #68776d; }
 .page-footer { display: flex; justify-content: space-between; gap: 16px; font-size: 11px; color: #7b877e; padding: 26px 2px; }
+.cloud-panel { background: #fff; border: 1px solid #dfe5dc; border-radius: 14px; padding: 24px; margin-top: 24px; }
+.cloud-note { font-size: 13px; color: #68776d; margin: 10px 0 20px; }
+.cloud-list { list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); gap: 12px; }
+.cloud-card { border: 1px solid #e1e6dd; border-radius: 10px; padding: 20px; min-width: 0; }
+.cloud-card .request-number { overflow-wrap: anywhere; }
+.cloud-card .request-title { letter-spacing: normal; }
+.cloud-retry { border: 1px solid #bdcbbb; border-radius: 6px; background: #f6f8f3; color: #244f40; padding: 10px 20px; margin-top: 16px; }
+.cloud-retry:hover { background: #e4ebe1; }
 @media (max-width: 760px) {
   .app { padding: 32px 18px 12px; }
   .page-header { flex-direction: column; align-items: stretch; gap: 24px; }
@@ -89,6 +97,7 @@ select { width: 100%; color: #263c34; background: #fff; border: 1px solid #bdcbb
   .workspace { grid-template-columns: 1fr; gap: 18px; }
   .list-panel, .details-panel, .new-request-panel { padding: 20px; }
   .form-grid { grid-template-columns: 1fr; }
+  .cloud-panel { padding: 20px; }
   .request-card { padding: 16px; }
 }
 @media (prefers-reduced-motion: no-preference) {
