@@ -1,15 +1,15 @@
-import { useRef, useState } from 'react'
-import { initialRequests, statuses } from './requests.js'
+import { useState } from 'react'
+import { statuses } from './requests.js'
+import { loadRequests, nextRequestId, saveRequests } from './requestStorage.js'
 import RequestList from './RequestList.jsx'
 import RequestDetails from './RequestDetails.jsx'
 import NewRequestForm from './NewRequestForm.jsx'
 
 export default function App() {
-  const [requests, setRequests] = useState(initialRequests)
-  const [selectedId, setSelectedId] = useState(initialRequests[0].id)
+  const [board, setBoard] = useState(loadRequests)
+  const { requests, error: storageError } = board
+  const [selectedId, setSelectedId] = useState(() => requests[0]?.id ?? null)
   const [filter, setFilter] = useState('All')
-  // IDs increase for this demo session and are assigned only once per request.
-  const nextRequestId = useRef(Math.max(...initialRequests.map((request) => request.id)) + 1)
 
   // Derive everything from the same requests array; never store a second copy.
   const selectedRequest = requests.find((request) => request.id === selectedId)
@@ -19,18 +19,29 @@ export default function App() {
   const unresolvedCount = requests.filter((request) => request.status !== 'Resolved').length
   const selectionHidden = selectedRequest && filter !== 'All' && selectedRequest.status !== filter
 
+  function persistRequests(nextRequests) {
+    const result = saveRequests(nextRequests)
+    if (result.ok) {
+      setBoard({ requests: nextRequests, error: '' })
+    } else {
+      setBoard((currentBoard) => ({ ...currentBoard, error: result.error }))
+    }
+    return result
+  }
+
   function changeStatus(id, status) {
-    setRequests((currentRequests) => currentRequests.map((request) => (
+    persistRequests(requests.map((request) => (
       request.id === id ? { ...request, status } : request
     )))
   }
 
   function addRequest(values) {
-    const newRequest = { ...values, id: nextRequestId.current, status: 'Open' }
-    nextRequestId.current += 1
-    setRequests((currentRequests) => [...currentRequests, newRequest])
+    const newRequest = { ...values, id: nextRequestId(requests), status: 'Open' }
+    const result = persistRequests([...requests, newRequest])
+    if (!result.ok) return result
     setFilter('All')
     setSelectedId(newRequest.id)
+    return result
   }
 
   return (
@@ -47,7 +58,8 @@ export default function App() {
         </div>
       </header>
 
-      <p className="demo-note"><strong>Temporary demo.</strong> These requests are fictional. Changes live in React state; refreshing resets the demo.</p>
+      <p className="demo-note"><strong>Saved in this browser only.</strong> Requests and status changes are saved locally when storage is available. There is no account or device sync. Clearing browser data removes saved requests.</p>
+      {storageError && <p className="storage-error" role="alert">{storageError}</p>}
 
       <NewRequestForm onAddRequest={addRequest} />
 

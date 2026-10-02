@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { priorities } from './requests.js'
 
 const emptyFields = { location: '', title: '', description: '', priority: 'Medium' }
 
@@ -6,12 +7,14 @@ export default function NewRequestForm({ onAddRequest }) {
   const [fields, setFields] = useState(emptyFields)
   const [errors, setErrors] = useState({})
   const [confirmation, setConfirmation] = useState('')
+  const [saveError, setSaveError] = useState('')
 
   function changeField(event) {
     const { name, value } = event.target
     setFields((currentFields) => ({ ...currentFields, [name]: value }))
     setErrors((currentErrors) => ({ ...currentErrors, [name]: undefined }))
     setConfirmation('')
+    setSaveError('')
   }
 
   function submitRequest(event) {
@@ -27,6 +30,7 @@ export default function NewRequestForm({ onAddRequest }) {
     if (!values.title) validationErrors.title = 'Enter a problem title.'
     setErrors(validationErrors)
     setConfirmation('')
+    setSaveError('')
 
     if (validationErrors.location || validationErrors.title) {
       const firstInvalidField = validationErrors.location ? 'location' : 'title'
@@ -34,10 +38,14 @@ export default function NewRequestForm({ onAddRequest }) {
       return
     }
 
-    // App owns the requests. Only clear the draft after its callback succeeds.
-    onAddRequest(values)
+    // App returns the storage result. Keep the draft unless saving succeeded.
+    const result = onAddRequest(values)
+    if (!result.ok) {
+      setSaveError(result.error)
+      return
+    }
     setFields(emptyFields)
-    setConfirmation('Request added as Open and selected below.')
+    setConfirmation('Request saved in this browser as Open and selected below.')
   }
 
   return (
@@ -63,7 +71,7 @@ export default function NewRequestForm({ onAddRequest }) {
           <div className="form-field">
             <label htmlFor="new-priority">Priority</label>
             <select id="new-priority" name="priority" value={fields.priority} onChange={changeField}>
-              {['Low', 'Medium', 'High'].map((priority) => <option key={priority} value={priority}>{priority}</option>)}
+              {priorities.map((priority) => <option key={priority} value={priority}>{priority}</option>)}
             </select>
           </div>
         </div>
@@ -71,6 +79,7 @@ export default function NewRequestForm({ onAddRequest }) {
           <button type="submit" className="add-request-button">Add request</button>
           <p className="form-confirmation" role="status">{confirmation}</p>
         </div>
+        {saveError && <p className="field-error" role="alert">{saveError}</p>}
       </form>
     </section>
   )
